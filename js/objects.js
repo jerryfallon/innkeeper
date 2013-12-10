@@ -94,3 +94,81 @@ var Visitors = {
 		}
 	}
 };
+
+var Inn = {
+	//properties
+	name: 'The Stickit Inn',
+	inventory: {
+		drink: {
+			ale: 10,
+			wine: 6,
+			mead: 5
+		},
+		food: {
+			bread: 0,
+			meat: 5,
+			salad: 10
+		},
+		entertainment: {
+			poet: 1,
+			minstrel: 5,
+			jester: 2
+		},
+		staff: {
+			barmaid: 5,
+			orphan: 2,
+			hag: 3
+		}
+	},
+	capacity: 20,
+	currentVisitors: [],
+	rep: {
+		barbarians: 20,
+		elves: 0,
+		humans: 0,
+		dwarves: 0,
+		thieves: 5,
+		nobility: 10
+	},
+
+	//functions
+	startNightShift: function (callbackFunctionWhenComplete) {
+		console.log('starting a nightshift at ' + this.name);
+
+		var self = this;
+		var numberOfTicksPerShift = 10;
+		var timeBetweenTicks = 1000;
+		var currentTick = 1;
+
+		var executeAnotherTickAsync = function () {
+			if (currentTick >= numberOfTicksPerShift) {
+				console.log('nightshift complete at ' + this.name);
+				if (callbackFunctionWhenComplete) //if there is a callback function, call it (with 'this' pointing to the inn instance... "innstance"?)
+					callbackFunctionWhenComplete.call(self);
+				return;
+			}
+
+			console.log('current tick: ' + currentTick);
+			self.executeOneNightShiftTick();
+			++currentTick;
+
+			setTimeout(executeAnotherTickAsync, timeBetweenTicks);
+		};
+
+		setTimeout(executeAnotherTickAsync, 0); //0 as a timeout because we don't want to block the thread during the first tick.
+
+	},
+	executeOneNightShiftTick: function (callbackWhenCompleted) {
+		console.log(' starting a tick');
+		var maxNewVisitors = this.capacity - this.currentVisitors.length;
+		//todo: current visitors leave
+		//todo: new visitors enter
+		//todo: trigger events
+		//todo: calculate transactions, adjust visitor satisfaction, adjust inventory
+		if (callbackWhenCompleted)
+			callbackWhenCompleted.call(this);
+
+		console.log(' completed a tick');
+
+	}
+};

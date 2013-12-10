@@ -1,9 +1,15 @@
-$(document).ready( function() {
+$(document).ready(function () {
+	//this should be combined with Jerry's code below.
+	//I just wanted a proof of concept on the nightshift "ticks".
+	//This will execute the nightshift (each "tick" is async, so this returns right away).
+	//I print out the tick details in the console.  -Tyler
+	Inn.startNightShift();
+
 	textLog = '';
 
 	// Generate random inventory
 	var type, chosenItems = {};
-	for(var i in Items) {
+	for (var i in Items) {
 		type = Items[i];
 		chosenItems[i] = getRandomProperty(type);
 		log('Your ' + i + ' tonight is ' + chosenItems[i]);
@@ -14,7 +20,7 @@ $(document).ready( function() {
 	// Generate random visitors
 	var visitors = [];
 	var visitorCount = getRandom(1, 5);
-	for(var i = 0; i <= visitorCount; i++) {
+	for (var i = 0; i <= visitorCount; i++) {
 		visitors.push(getRandomProperty(Visitors));
 	}
 	console.log(visitors);
@@ -22,16 +28,16 @@ $(document).ready( function() {
 
 	// Determine each visitor's favor
 	var visitor, item, j, favor, text, overallFavor = 0;
-	for(i in visitors) {
+	for (i in visitors) {
 		visitor = visitors[i];
 		log('<br/>A ' + visitor + ' has arrived');
 		favor = 0;
-		for(j in chosenItems) {
+		for (j in chosenItems) {
 			item = chosenItems[j];
-			if(Visitors[visitor].preferences[j][item] === 'love') {
+			if (Visitors[visitor].preferences[j][item] === 'love') {
 				log('<span style="color: blue;">He loves your ' + item + '</span>');
 				favor++;
-			} else if(Visitors[visitor].preferences[j][item] === 'hate') {
+			} else if (Visitors[visitor].preferences[j][item] === 'hate') {
 				log('<span style="color: red;">He HATES your ' + item + '</span>');
 				favor--;
 			} else {
@@ -39,9 +45,9 @@ $(document).ready( function() {
 			}
 		}
 		text = 'His overall favor towards your inn: ';
-		if(favor > 0) {
+		if (favor > 0) {
 			text += '<span style="color: blue;">' + favor + '</span>';
-		} else if(favor < 0) {
+		} else if (favor < 0) {
 			text += '<span style="color: red;">' + favor + '</span>';
 		} else {
 			text += favor;
