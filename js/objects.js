@@ -95,6 +95,43 @@ var Visitors = {
 	}
 };
 
+//Event
+// description
+// canOccur (function or boolean)
+//
+var Events = [
+	{
+		description: 'Two dwarves complain to you that the tables are too high for them to sit comfortably.  They are clearly upset.  What do you do?',
+		canOccur: function (inn) {
+			//todo: evaluate prereqs here (for this event the inn needs at least two dwarves at satisfaction level 3 or below)
+			return true;
+		},
+		options: [
+			{
+				description: 'Apologize, and offer them a free round of ale for their inconvenience.',
+				canChoose: function (inn) {
+					//todo: test inkeeper's ale supply, and ensure that charm level is at least <insert number>
+					return true;
+				},
+				effect: function (inn) {
+					//todo: reduce the supply, test innkeeper's charm (weighted success chance).
+					//todo: if success, increase satisfaction and the dwarves stay
+					//todo: if failure, dwarves leave.  Possibly some chance for satisfaction reduction/increase.
+					return "A message to display to the gamer describing the effect";
+				}
+			},
+			{
+				description: 'Ignore their complaints',
+				canChoose: true,
+				effect: function (inn) {
+					//todo: reduce the dwarves satisfaction rating (or possibly just make them leave altogether)
+					return "The dwarves don't seem happy that you ignore their complaints, but given the limited options in town they return to their table to finish their drinks.";
+				}
+			}
+		]
+	}
+];
+
 var Inn = {
 	//properties
 	name: 'The Stickit Inn',
