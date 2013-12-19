@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>
+<head title="Innkeepah">
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	<script type="text/javascript" src="js/libraries/jquery-2.0.3.min.js"></script>
+	<script type="text/javascript" src="js/libraries/knockout-3.0.0.js"></script>
+	<script type="text/javascript" src="js/libraries/knockout.mapping.js"></script>
+	<script type="text/javascript" src="js/innkeeper.js"></script>
+	<script type="text/javascript" src="js/functions.js"></script>
+	<style type="text/css">
+		#game-settings, #inn, #inventory {
+			border: 1px solid grey;
+		}
+	</style>
+</head>
+<body>
+	<div id="game-settings">
+		<h2>Game Settings</h2>
+		<label>Ticks per night-shift: <input data-bind="value: ticksPerNightShift" /></label><br/>
+		<label>Event entropy per tick (percentage that the chance of an event occurring increases per tick since the last event): <input data-bind="value: eventEntropyPerTick" /></label><br />
+	</div>
+	<div id="inn">
+		<h2>Inn</h2>
+		<label>Name: <input data-bind="value: name" /></label><br />
+		<div id="inventory">
+			<h3>Inventory</h3>
+			<div>
+				<h4>Drink</h4>
+				<label>Ale: <input data-bind="value: inventory.drink.ale" /></label><br />
+				<label>Wine: <input data-bind="value: inventory.drink.wine" /></label><br />
+				<label>Mead: <input data-bind="value: inventory.drink.mead" /></label><br />
+			</div>
+			<div>
+				<h4>Food</h4>
+				<label>Bread: <input data-bind="value: inventory.food.bread" /></label><br />
+				<label>Meat: <input data-bind="value: inventory.food.meat" /></label><br />
+				<label>Salad: <input data-bind="value: inventory.food.salad" /></label><br />
+			</div>
+			<div>
+				<h4>Entertainment</h4>
+				<label>Poet: <input data-bind="value: inventory.entertainment.poet" /></label><br />
+				<label>Minstrel: <input data-bind="value: inventory.entertainment.minstrel" /></label><br />
+				<label>Jester: <input data-bind="value: inventory.entertainment.jester" /></label><br />
+			</div>
+			<div>
+				<h4>Staff</h4>
+				<label>Barmaid: <input data-bind="value: inventory.staff.barmaid" /></label><br />
+				<label>Orphan: <input data-bind="value: inventory.staff.orphan" /></label><br />
+				<label>Hag: <input data-bind="value: inventory.staff.hag" /></label><br />
+			</div>
+		</div>
+	</div>
+	<button id="btn">Start Night Shift</button>
+	<div id="nightShift">
+	</div>
+
+	<script type="text/html" id="nightshift-template">
+		<h3 data-bind="text: 'Tick ' + tickNumber()"></h3>
+	</script>
+	<script type="text/javascript">
+		var gameSettingsViewModel = ko.mapping.fromJS(Game.gameSettings);
+		ko.applyBindings(gameSettingsViewModel, $('#game-settings')[0]);
+
+		var innViewModel = ko.mapping.fromJS(Game.inn);
+		ko.applyBindings(innViewModel, $('#inn')[0]);
+
+		$('#btn').click(function () {
+			//copy the viewmodels props to the game model.
+			$.extend(Game.gameSettings, ko.toJS(gameSettingsViewModel));
+			$.extend(Game.inn, ko.toJS(innViewModel));
+			$('#nightShift').html('<h2>Starting Nightshift</h2>');
+			Inn.startNightShift(function (tickNumber) {
+				$('#nightShift').append("<br/>Tick " + tickNumber + '<br/>');
+			});
+		});
+	</script>
+</body>
+</html>
