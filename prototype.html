@@ -64,7 +64,7 @@
 		ko.applyBindings(gameSettingsViewModel, $('#game-settings')[0]);
 
 		var innViewModel = ko.mapping.fromJS(Game.inn);
-		delete innViewModel.game; //need this so that the circular reference doesn't get copied all over the place.
+		delete innViewModel.game; //need this so that the "game" property of our real model isn't overwritten by the view model when data-bound.
 		ko.applyBindings(innViewModel, $('#inn')[0]);
 
 		$('#btn').click(function () {

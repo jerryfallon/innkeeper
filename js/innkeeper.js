@@ -97,6 +97,74 @@ var Events = [
 				}
 			}
 		]
+	},
+	{
+		id: 3,
+		description: 'You spy a lowly street urchin pick-pocketing one of your customers.  Looks like he\'s about to run off with an entire pouch of gold and leave your patron without the ability to pay for more food and drink!',
+		time: 10000,
+		canOccur: function (inn) {
+			return true;
+		},
+		options: [
+			{
+				id: 5,
+				description: 'Try to catch the urchin!',
+				canChoose: function (inn) {
+					return true;
+				},
+				effect: function (inn) {
+					return "You run after the urchin and latch onto his arm just before he sneaks out the door. (sub-event occurs)";
+				},
+				select: function () { //todo: refactor so that the event has a reference to the inn.  right now this is accessing a global variable.
+					return this.effect(Inn);
+				}
+			},
+			{
+				id: 6,
+				description: 'Ignore the petty crime.  You have more important things to deal with, like fleecing all your OTHER customers of their gold!',
+				canChoose: true,
+				effect: function (inn) {
+					return "The urchin leaves your establishment.  The customer will not be happy that he was robbed at your inn, and may sour him on coming back.";
+				},
+				select: function () {
+					return this.effect(Inn);
+				}
+			}
+		]
+	},
+	{
+		id: 4,
+		description: 'A wispy, rugged type peers at you from under his hood and says "I have some information for you..."',
+		time: 10000,
+		canOccur: function (inn) {
+			return true;
+		},
+		options: [
+			{
+				id: 7,
+				description: 'Listen to what the ranger has to say.',
+				canChoose: function (inn) {
+					return true;
+				},
+				effect: function (inn) {
+					return "(conversation sub-event occurs)";
+				},
+				select: function () { //todo: refactor so that the event has a reference to the inn.  right now this is accessing a global variable.
+					return this.effect(Inn);
+				}
+			},
+			{
+				id: 8,
+				description: 'Ignore the man',
+				canChoose: true,
+				effect: function (inn) {
+					return 'You pretend not to hear, and the ranger turns his attention back to his ale in a way that makes you think "this guy might be the self-exiled heir to the throne of a grand kingdom and someone worth talking to."  Oh well.';
+				},
+				select: function () {
+					return this.effect(Inn);
+				}
+			}
+		]
 	}
 ];
 
@@ -146,7 +214,7 @@ var Events = [
 				inn: this,
 				ticks: [],
 				events: [],
-				eventChance: this.game.gameSettings.baseEventChance,
+				eventChance: parseFloat(this.game.gameSettings.baseEventChance),
 				executeOneNightShiftTick: function () {
 					this.ticks.push({});
 					console.log('Starting tick ' + this.ticks.length);
@@ -178,7 +246,7 @@ var Events = [
 							console.log('event ' + eventToOccur.id + ' occurs: "' + eventToOccur.description + '"');
 							this.events.push(eventToOccur);
 							eventsOccurred = true;
-							this.eventChance = this.inn.game.gameSettings.baseEventChance;
+							this.eventChance = parseFloat(this.inn.game.gameSettings.baseEventChance);
 							if (this.callbackWhenEventOccurs) {
 								this.callbackWhenEventOccurs.call(eventToOccur);
 							}
@@ -187,7 +255,7 @@ var Events = [
 
 					if (!eventsOccurred) {
 						console.log('Nothing happens this tick...');
-						this.eventChance += this.inn.game.gameSettings.eventEntropyPerTick;
+						this.eventChance += parseFloat(this.inn.game.gameSettings.eventEntropyPerTick);
 					}
 
 					console.log('Ending tick ' + this.ticks.length);
