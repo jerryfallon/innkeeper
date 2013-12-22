@@ -5,6 +5,7 @@
 	<script type="text/javascript" src="js/libraries/jquery-2.0.3.min.js"></script>
 	<script type="text/javascript" src="js/libraries/knockout-3.0.0.js"></script>
 	<script type="text/javascript" src="js/libraries/knockout.mapping.js"></script>
+	<script type="text/javascript" src="js/libraries/handlebars-v1.1.2.js"></script>
 	<script type="text/javascript" src="js/innkeeper.js"></script>
 	<script type="text/javascript" src="js/functions.js"></script>
 	<style type="text/css">
@@ -56,9 +57,20 @@
 	<div id="nightShift">
 	</div>
 
-	<script type="text/html" id="nightshift-template">
-		<h3 data-bind="text: 'Tick ' + tickNumber()"></h3>
+	<script type="text/x-handlebars-template" id="event-template">
+		<div class="event" id="event-{{id}}">
+			<h4>{{description}}</h4>
+			<div class="event-timer" data-time="{{msLeft}}">Time to answer: {{secondsLeft}}</div>
+			<ol>
+				{{#each options}}
+				<li>
+					<a href="javascript:void(0)" class="option" data-optionid="{{id}}">{{description}}</a>
+				</li>
+				{{/each}}
+			</ol>
+		</div>
 	</script>
+
 	<script type="text/javascript">
 		var gameSettingsViewModel = ko.mapping.fromJS(Game.gameSettings);
 		ko.applyBindings(gameSettingsViewModel, $('#game-settings')[0]);
@@ -74,19 +86,13 @@
 			$('#nightShift').html('<h2>Starting Nightshift</h2>');
 			Inn.startNightShift(function () {
 				$('#nightShift').append('<div class="tick-done">...</div>');
-				window.scrollTo(0, document.body.scrollHeight);
+				//window.scrollTo(0, document.body.scrollHeight);
 			}, function () {
-				var eventDiv = $('<div class="event" id="event-' + this.id + '"></div>');
-				eventDiv.append('<h4>' + this.description + '</h4>')
-						.append('<div class="event-timer" data-time="' + this.time + '">Time to answer: ' + this.time/1000 + '</div>');
-				var optionsList = $('<ol></ol>');
-				for (var i = 0; i < this.options.length; ++i) {
-					var option = this.options[i];
-					optionsList.append($('<li>' + option.description + ' <br/>(outcome: ' + option.select() + ')</li>'));
-				}
-				eventDiv.append(optionsList);
+				var source = $("#event-template").html();
+				var template = Handlebars.compile(source);
+				var eventHtml = template({id: this.id, description: this.description, msLeft: this.time, secondsLeft: this.time/1000, options: this.options});
+				$('#nightShift').append(eventHtml);
 
-				$('#nightShift').append(eventDiv);
 				var eventId = this.id;
 
 				var reduceTimer = function () {
@@ -99,6 +105,13 @@
 						setTimeout(reduceTimer, 1000);
 				};
 				setTimeout(reduceTimer, 1000);
+
+				$('#event-' + eventId + ' .option').click(function () {
+					var optionId = $(this).attr('data-optionid');
+					var event = $.grep(Events, function(e){ return e.id == eventId; })[0];
+					var option = $.grep(event.options, function (o) { return o.id == optionId; })[0];
+					$('#event-' + eventId).html(option.select());
+				});
 			});
 		});
 	</script>

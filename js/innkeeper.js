@@ -149,7 +149,7 @@ var Events = [
 				effect: function (inn) {
 					return "(conversation sub-event occurs)";
 				},
-				select: function () { //todo: refactor so that the event has a reference to the inn.  right now this is accessing a global variable.
+				select: function () {
 					return this.effect(Inn);
 				}
 			},
@@ -159,6 +159,96 @@ var Events = [
 				canChoose: true,
 				effect: function (inn) {
 					return 'You pretend not to hear, and the ranger turns his attention back to his ale in a way that makes you think "this guy might be the self-exiled heir to the throne of a grand kingdom and someone worth talking to."  Oh well.';
+				},
+				select: function () {
+					return this.effect(Inn);
+				}
+			}
+		]
+	},
+	{
+		id: 5,
+		description: 'A dragon attacks!',
+		time: 10000,
+		canOccur: function (inn) {
+			return true;
+		},
+		options: [
+			{
+				id: 9,
+				description: 'Fuck.',
+				canChoose: function (inn) {
+					return true;
+				},
+				effect: function (inn) {
+					return "You dead, son. (game ends)";
+				},
+				select: function () { 
+					return this.effect(Inn);
+				}
+			},
+			{
+				id: 10,
+				description: 'Holy fuck.',
+				canChoose: true,
+				effect: function (inn) {
+					return 'You are so so dead. (game ends)';
+				},
+				select: function () {
+					return this.effect(Inn);
+				}
+			},
+			{
+				id: 11,
+				description: 'Throw some meat at another inn.',
+				canChoose: true,
+				effect: function (inn) {
+					return 'You grab some of your stores of beef and hurl it at a competing inn.  The dragon\s keen sense of smell leads him to burn down your competitor, then it flies away.  Business is about to be gooood.';
+				},
+				select: function () {
+					return this.effect(Inn);
+				}
+			}
+		]
+	},
+	{
+		id: 6,
+		description: 'You walk by a table of barbarians and overhear something about a troll, a bridge, and a golden bauble.',
+		time: 13000,
+		canOccur: function (inn) {
+			return true;
+		},
+		options: [
+			{
+				id: 12,
+				description: 'Try to eavesdrop...',
+				canChoose: function (inn) {
+					return true;
+				},
+				effect: function (inn) {
+					return "Unfortunately, you are too distracted by the noises at other tables to hear any details.  Perhaps if you were better at focusing, or if your inn wasn't so busy?";
+				},
+				select: function () {
+					return this.effect(Inn);
+				}
+			},
+			{
+				id: 13,
+				description: 'Ask the barbarians directly what they are talking about.',
+				canChoose: true,
+				effect: function (inn) {
+					return 'The barbarians find your interuption annoying, and send you away.  Perhaps if you were a bit rougher and tougher, they would relate?';
+				},
+				select: function () {
+					return this.effect(Inn);
+				}
+			},
+			{
+				id: 14,
+				description: 'Ignore the comment and keep walking.',
+				canChoose: true,
+				effect: function (inn) {
+					return 'What do barbarians know?  They were probably talking about their mothers, who look like trolls, live under bridges, and are named "Golden Bob".';
 				},
 				select: function () {
 					return this.effect(Inn);
