@@ -5,6 +5,7 @@
 	<script type="text/javascript" src="js/libraries/jquery-2.0.3.min.js"></script>
 	<script type="text/javascript" src="js/libraries/knockout-3.0.0.js"></script>
 	<script type="text/javascript" src="js/libraries/knockout.mapping.js"></script>
+	<script type="text/javascript" src="js/libraries/handlebars-v1.1.2.js"></script>
 	<script type="text/javascript" src="js/innkeeper.js"></script>
 	<script type="text/javascript" src="js/functions.js"></script>
 	<style type="text/css">
@@ -17,6 +18,8 @@
 	<div id="game-settings">
 		<h2>Game Settings</h2>
 		<label>Ticks per night-shift: <input data-bind="value: ticksPerNightShift" /></label><br/>
+		<label>Ms per tick: <input data-bind="value: timeBetweenTicks" /></label><br/>
+		<label>Base event chance: <input data-bind="value: baseEventChance" /></label><br />
 		<label>Event entropy per tick (percentage that the chance of an event occurring increases per tick since the last event): <input data-bind="value: eventEntropyPerTick" /></label><br />
 	</div>
 	<div id="inn">
@@ -54,14 +57,26 @@
 	<div id="nightShift">
 	</div>
 
-	<script type="text/html" id="nightshift-template">
-		<h3 data-bind="text: 'Tick ' + tickNumber()"></h3>
+	<script type="text/x-handlebars-template" id="event-template">
+		<div class="event" id="event-{{id}}">
+			<h4>{{description}}</h4>
+			<div class="event-timer" data-time="{{msLeft}}">Time to answer: {{secondsLeft}}</div>
+			<ol>
+				{{#each options}}
+				<li>
+					<a href="javascript:void(0)" class="option" data-optionid="{{id}}">{{description}}</a>
+				</li>
+				{{/each}}
+			</ol>
+		</div>
 	</script>
+
 	<script type="text/javascript">
 		var gameSettingsViewModel = ko.mapping.fromJS(Game.gameSettings);
 		ko.applyBindings(gameSettingsViewModel, $('#game-settings')[0]);
 
 		var innViewModel = ko.mapping.fromJS(Game.inn);
+		delete innViewModel.game; //need this so that the "game" property of our real model isn't overwritten by the view model when data-bound.
 		ko.applyBindings(innViewModel, $('#inn')[0]);
 
 		$('#btn').click(function () {
@@ -69,8 +84,34 @@
 			$.extend(Game.gameSettings, ko.toJS(gameSettingsViewModel));
 			$.extend(Game.inn, ko.toJS(innViewModel));
 			$('#nightShift').html('<h2>Starting Nightshift</h2>');
-			Inn.startNightShift(function (tickNumber) {
-				$('#nightShift').append("<br/>Tick " + tickNumber + '<br/>');
+			Inn.startNightShift(function () {
+				$('#nightShift').append('<div class="tick-done">...</div>');
+				//window.scrollTo(0, document.body.scrollHeight);
+			}, function () {
+				var source = $("#event-template").html();
+				var template = Handlebars.compile(source);
+				var eventHtml = template({id: this.id, description: this.description, msLeft: this.time, secondsLeft: this.time/1000, options: this.options});
+				$('#nightShift').append(eventHtml);
+
+				var eventId = this.id;
+
+				var reduceTimer = function () {
+					var timer = $('#event-' + eventId + ' .event-timer');
+					var timeLeft = timer.attr('data-time');
+					timeLeft -= 1000;
+					timer.attr('data-time', timeLeft);
+					timer.html('Time to answer: ' + timeLeft/1000);
+					if (timeLeft > 0)
+						setTimeout(reduceTimer, 1000);
+				};
+				setTimeout(reduceTimer, 1000);
+
+				$('#event-' + eventId + ' .option').click(function () {
+					var optionId = $(this).attr('data-optionid');
+					var event = $.grep(Events, function(e){ return e.id == eventId; })[0];
+					var option = $.grep(event.options, function (o) { return o.id == optionId; })[0];
+					$('#event-' + eventId).html(option.select());
+				});
 			});
 		});
 	</script>
