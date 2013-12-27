@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<script type="text/javascript" src="js/libraries/jquery-2.0.3.min.js"></script>
+		<script type="text/javascript" src="js/libraries/handlebars-v1.1.2.js"></script>
+		<script type="text/javascript" src="js/db.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				db = new Db();
+			});
+		</script>
+	</head>
+
+	<body>
+
+		<span class="pane-picker" data-id="add">Add New Records</span>
+		<span class="pane-picker" data-id="list">List Existing Records</span><br/><br/>
+
+		<div class="pane" id="list">
+			<span class="list-picker" data-id="drink">Drink</span>
+			<span class="list-picker" data-id="food">Food</span><br/><br/>
+			<div id="list-contents"></div>
+		</div>
+		<div class="pane" id="add">
+			<div id="form-message"></div>
+			<span class="form-picker" data-id="drink">Drink</span>
+			<span class="form-picker" data-id="food">Food</span><br/><br/>
+			<div id="form-contents"></div>
+		</div>
+
+	</body>
+
+	<script id="template-input-form" type="text/x-handlebars-template">
+		{{#each fields}}
+			{{#ifCond type '==' 'text'}}
+				{{name}}:<br/><input type="text" data-id="{{name}}" /><br/><br/>
+			{{/ifCond}}
+			{{#ifCond type '==' 'int'}}
+				{{name}}:<br/><input type="number" min="0" data-id="{{name}}" /><br/><br/>
+			{{/ifCond}}
+			{{#ifCond type '==' 'longtext'}}
+				{{name}}:<br/><textarea data-id="{{name}}" /></textarea><br/><br/>
+			{{/ifCond}}
+			{{#ifCond type '==' 'bool'}}
+				{{name}}:<br/><input type="checkbox" data-id="{{name}}" /><br/><br/>
+			{{/ifCond}}
+		{{/each}}
+		<input type="submit" id="form-submit" data-id="{{type}}" value="Submit" />
+	</script>
+
+	<script id="template-results-table" type="text/x-handlebars-template">
+		<table>
+			<tr>
+				<th>ID</th>
+				{{#each columns}}
+				<th>{{name}}</th>
+				{{/each}}
+			<tr>
+			{{#each rows}}
+			<tr>
+				{{#each columns}}
+				<td>{{value}}</td>
+				{{/each}}
+			</tr>
+			{{/each}}
+		</table>
+	</script>
+</html>
