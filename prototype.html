@@ -3,117 +3,195 @@
 <head title="Innkeepah">
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
 	<script type="text/javascript" src="js/libraries/jquery-2.0.3.min.js"></script>
-	<script type="text/javascript" src="js/libraries/knockout-3.0.0.js"></script>
-	<script type="text/javascript" src="js/libraries/knockout.mapping.js"></script>
+	<script type="text/javascript" src="js/libraries/jquery.colorbox-min.js"></script>
+	<script type="text/javascript" src="js/libraries/ui/minified/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="js/libraries/handlebars-v1.1.2.js"></script>
+	<script type="text/javascript" src="js/data.js"></script>
 	<script type="text/javascript" src="js/innkeeper.js"></script>
 	<script type="text/javascript" src="js/functions.js"></script>
 	<style type="text/css">
 		#game-settings, #inn, #inventory {
 			border: 1px solid grey;
 		}
+		/*hack to get the dialog in front of colorbox*/
+		.ui-front {
+			z-index: 99999 !important;
+		}
 	</style>
+	<link rel="stylesheet" href="css/colorbox.css" />
+	<link rel="stylesheet" href="js\libraries\ui\themes\base\minified\jquery-ui.min.css" />
 </head>
 <body>
 	<div id="game-settings">
 		<h2>Game Settings</h2>
-		<label>Ticks per night-shift: <input data-bind="value: ticksPerNightShift" /></label><br/>
-		<label>Ms per tick: <input data-bind="value: timeBetweenTicks" /></label><br/>
-		<label>Base event chance: <input data-bind="value: baseEventChance" /></label><br />
-		<label>Event entropy per tick (percentage that the chance of an event occurring increases per tick since the last event): <input data-bind="value: eventEntropyPerTick" /></label><br />
+		<label>Ticks per night-shift: <input id="ticksPerNightShift" /></label><br/>
+		<label>Ms per tick: <input id="timeBetweenTicks" /></label><br/>
+		<label>Base event chance: <input id="baseEventChance" /></label><br />
+		<label>Event entropy per tick (percentage that the chance of an event occurring increases per tick since the last event): <input id="eventEntropyPerTick" /></label><br />
 	</div>
 	<div id="inn">
 		<h2>Inn</h2>
-		<label>Name: <input data-bind="value: name" /></label><br />
+		<label>Name: <input id="name" /></label><br />
 		<div id="inventory">
 			<h3>Inventory</h3>
 			<div>
 				<h4>Drink</h4>
-				<label>Ale: <input data-bind="value: inventory.drink.ale" /></label><br />
-				<label>Wine: <input data-bind="value: inventory.drink.wine" /></label><br />
-				<label>Mead: <input data-bind="value: inventory.drink.mead" /></label><br />
+				<label>Ale: <input id="ale" /></label><br />
+				<label>Wine: <input id="wine" /></label><br />
+				<label>Mead: <input id="mead" /></label><br />
 			</div>
 			<div>
 				<h4>Food</h4>
-				<label>Bread: <input data-bind="value: inventory.food.bread" /></label><br />
-				<label>Meat: <input data-bind="value: inventory.food.meat" /></label><br />
-				<label>Salad: <input data-bind="value: inventory.food.salad" /></label><br />
+				<label>Bread: <input id="bread" /></label><br />
+				<label>Meat: <input id="meat" /></label><br />
+				<label>Salad: <input id="salad" /></label><br />
 			</div>
 			<div>
 				<h4>Entertainment</h4>
-				<label>Poet: <input data-bind="value: inventory.entertainment.poet" /></label><br />
-				<label>Minstrel: <input data-bind="value: inventory.entertainment.minstrel" /></label><br />
-				<label>Jester: <input data-bind="value: inventory.entertainment.jester" /></label><br />
+				<label>Poet: <input id="poet" /></label><br />
+				<label>Minstrel: <input id="minstrel" /></label><br />
+				<label>Jester: <input id="jester" /></label><br />
 			</div>
 			<div>
 				<h4>Staff</h4>
-				<label>Barmaid: <input data-bind="value: inventory.staff.barmaid" /></label><br />
-				<label>Orphan: <input data-bind="value: inventory.staff.orphan" /></label><br />
-				<label>Hag: <input data-bind="value: inventory.staff.hag" /></label><br />
+				<label>Barmaid: <input id="barmaid" /></label><br />
+				<label>Orphan: <input id="orphan" /></label><br />
+				<label>Hag: <input id="hag"/></label><br />
 			</div>
 		</div>
 	</div>
 	<button id="btn">Start Night Shift</button>
-	<div id="nightShift">
+	<div id="nightshift-container" style="display:none">
+		<div id="nightshift"></div>
 	</div>
 
 	<script type="text/x-handlebars-template" id="event-template">
 		<div class="event" id="event-{{id}}">
-			<h4>{{description}}</h4>
+			<h4><a id="event-{{id}}-dialog" href="#dialog-{{dialogid}}">{{description}}</a></h4>
 			<div class="event-timer" data-time="{{msLeft}}">Time to answer: {{secondsLeft}}</div>
+		</div>
+	</script>
+
+	<script type="text/x-handlebars-template" id="dialog-template">
+		<div class="dialog" id="dialog-{{id}}">
 			<ol>
-				{{#each options}}
-				<li>
-					<a href="javascript:void(0)" class="option" data-optionid="{{id}}">{{description}}</a>
-				</li>
+				{{#each choices}}
+				<li><a href="#" id="dialog-choice-{{id}}">{{text}}</a></li>
 				{{/each}}
 			</ol>
 		</div>
 	</script>
 
-	<script type="text/javascript">
-		var gameSettingsViewModel = ko.mapping.fromJS(Game.gameSettings);
-		ko.applyBindings(gameSettingsViewModel, $('#game-settings')[0]);
+		<script type="text/javascript">
+			$(function () {
 
-		var innViewModel = ko.mapping.fromJS(Game.inn);
-		delete innViewModel.game; //need this so that the "game" property of our real model isn't overwritten by the view model when data-bound.
-		ko.applyBindings(innViewModel, $('#inn')[0]);
+				function showDialog(eventid, dialogid) {
+					var dialog = $.grep(Dialogs, function (d) { return (d.id == dialogid) })[0];
+					var event = $.grep(Events, function (e) { return (e.id == eventid) })[0];
+					var source = $("#dialog-template").html();
+					var template = Handlebars.compile(source);
+					var html = template({ id: dialog.id, description: dialog.text, eventid: eventid, msLeft: event.time, secondsLeft: event.time / 1000, choices: dialog.choices });
+					$('body').append(html);
+					$('#dialog-' + dialog.id).dialog();
 
-		$('#btn').click(function () {
-			//copy the viewmodels props to the game model.
-			$.extend(Game.gameSettings, ko.toJS(gameSettingsViewModel));
-			$.extend(Game.inn, ko.toJS(innViewModel));
-			$('#nightShift').html('<h2>Starting Nightshift</h2>');
-			Inn.startNightShift(function () {
-				$('#nightShift').append('<div class="tick-done">...</div>');
-				//window.scrollTo(0, document.body.scrollHeight);
-			}, function () {
-				var source = $("#event-template").html();
-				var template = Handlebars.compile(source);
-				var eventHtml = template({id: this.id, description: this.description, msLeft: this.time, secondsLeft: this.time/1000, options: this.options});
-				$('#nightShift').append(eventHtml);
+				}
 
-				var eventId = this.id;
+				//todo: make databinding automatic.  Suggestions on libraries for that? -tyler
+				function bindDataToForm() {
+					$('#name').val(Game.inn.name);
+					$('#ticksPerNightShift').val(Game.gameSettings.ticksPerNightShift);
+					$('#eventEntropyPerTick').val(Game.gameSettings.eventEntropyPerTick);
+					$('#timeBetweenTicks').val(Game.gameSettings.timeBetweenTicks);
+					$('#baseEventChance').val(Game.gameSettings.baseEventChance);
+					$('#ale').val(Game.inn.inventory.drink.ale);
+					$('#wine').val(Game.inn.inventory.drink.wine);
+					$('#mead').val(Game.inn.inventory.drink.mead);
+					$('#bread').val(Game.inn.inventory.food.bread);
+					$('#meat').val(Game.inn.inventory.food.meat);
+					$('#salad').val(Game.inn.inventory.food.salad);
+					$('#barmaid').val(Game.inn.inventory.staff.barmaid);
+					$('#orphan').val(Game.inn.inventory.staff.orphan);
+					$('#hag').val(Game.inn.inventory.staff.hag);
+					$('#poet').val(Game.inn.inventory.entertainment.poet);
+					$('#minstrel').val(Game.inn.inventory.entertainment.minstrel);
+					$('#jester').val(Game.inn.inventory.entertainment.jester);
+				}
+				function bindFormToData() {
+					Game.inn.name = $('#name').val();
+					Game.gameSettings.ticksPerNightShift = $('#ticksPerNightShift').val();
+					Game.gameSettings.eventEntropyPerTick = $('#eventEntropyPerTick').val();
+					Game.gameSettings.timeBetweenTicks = $('#timeBetweenTicks').val();
+					Game.gameSettings.baseEventChance = $('#baseEventChance').val();
+					Game.inn.inventory.drink.ale = $('#ale').val();
+					Game.inn.inventory.drink.wine = $('#wine').val();
+					Game.inn.inventory.drink.mead = $('#mead').val();
+					Game.inn.inventory.food.bread = $('#bread').val();
+					Game.inn.inventory.food.meat = $('#meat').val();
+					Game.inn.inventory.food.salad = $('#salad').val();
+					Game.inn.inventory.staff.barmaid = $('#barmaid').val();
+					Game.inn.inventory.staff.orphan = $('#orphan').val();
+					Game.inn.inventory.staff.hag = $('#hag').val();
+					Game.inn.inventory.entertainment.poet = $('#poet').val();
+					Game.inn.inventory.entertainment.minstrel = $('#minstrel').val();
+					Game.inn.inventory.entertainment.jester = $('#jester').val();
+				}
 
-				var reduceTimer = function () {
-					var timer = $('#event-' + eventId + ' .event-timer');
-					var timeLeft = timer.attr('data-time');
-					timeLeft -= 1000;
-					timer.attr('data-time', timeLeft);
-					timer.html('Time to answer: ' + timeLeft/1000);
-					if (timeLeft > 0)
-						setTimeout(reduceTimer, 1000);
-				};
-				setTimeout(reduceTimer, 1000);
+				bindDataToForm();
 
-				$('#event-' + eventId + ' .option').click(function () {
-					var optionId = $(this).attr('data-optionid');
-					var event = $.grep(Events, function(e){ return e.id == eventId; })[0];
-					var option = $.grep(event.options, function (o) { return o.id == optionId; })[0];
-					$('#event-' + eventId).html(option.select());
+				$('#btn').click(function () {
+					bindFormToData();
+
+					$.colorbox({
+						href: "#nightshift", inline: true, width: "50%", height: '500px', onComplete: function () {
+							$('#nightshift').html('<h2>Starting Nightshift</h2>');
+							Inn.startNightShift(function () {
+								$('#nightshift').append('<div class="tick-done">...</div>');
+								//window.scrollTo(0, document.body.scrollHeight);
+							}, function () {
+								var source = $("#event-template").html();
+								var template = Handlebars.compile(source);
+								var eventHtml = template({ id: this.id, description: this.dialog.text, dialogid: this.dialog.id, msLeft: this.time, secondsLeft: this.time / 1000 });
+								$('#nightshift').append(eventHtml);
+
+								var eventId = this.id;
+								var event = this;
+
+								var reduceTimer = function () {
+									var timer = $('#event-' + eventId + ' .event-timer');
+									var timeLeft = timer.attr('data-time');
+									timeLeft -= 1000;
+									timer.attr('data-time', timeLeft);
+									timer.html('Time to answer: ' + timeLeft / 1000);
+									if (timeLeft > 0)
+										setTimeout(reduceTimer, 1000);
+								};
+								setTimeout(reduceTimer, 1000);
+
+								$('#event-' + eventId + '-dialog').click(function () {
+									showDialog(eventId, event.dialog.id);
+								});
+
+								/*
+								$('#event-' + eventId + ' .option').click(function () {
+									var optionId = $(this).attr('data-optionid');
+									var event = $.grep(Events, function (e) { return e.id == eventId; })[0];
+									var option = $.grep(event.options, function (o) { return o.id == optionId; })[0];
+									var result = option.select();
+									bindDataToForm(); //updates the onscreen numbers for inventory, staff, etc.
+
+									$('#event-' + eventId).html();
+								});
+								*/
+
+							});
+
+						}
+					});
+
+
 				});
+
 			});
-		});
-	</script>
+		</script>
 </body>
 </html>
