@@ -73,7 +73,7 @@
 	</script>
 
 	<script type="text/x-handlebars-template" id="dialog-template">
-		<div class="dialog" id="dialog-{{id}}">
+		<div class="dialog" id="dialog-{{id}}" style="display:none">
 			<ol>
 				{{#each choices}}
 				<li><a href="#" id="dialog-choice-{{id}}">{{text}}</a></li>
@@ -91,8 +91,8 @@
 					var source = $("#dialog-template").html();
 					var template = Handlebars.compile(source);
 					var html = template({ id: dialog.id, description: dialog.text, eventid: eventid, msLeft: event.time, secondsLeft: event.time / 1000, choices: dialog.choices });
-					$('body').append(html);
-					$('#dialog-' + dialog.id).dialog();
+					var el = $(html);
+					el.dialog();
 
 				}
 
