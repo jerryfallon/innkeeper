@@ -74,6 +74,7 @@
 
 	<script type="text/x-handlebars-template" id="dialog-template">
 		<div class="dialog" id="dialog-{{id}}" style="display:none">
+			<h4>{{text}}</h4>
 			<ol>
 				{{#each choices}}
 				<li><a href="#" id="dialog-choice-{{id}}">{{text}}</a></li>
@@ -90,7 +91,7 @@
 					var event = $.grep(Events, function (e) { return (e.id == eventid) })[0];
 					var source = $("#dialog-template").html();
 					var template = Handlebars.compile(source);
-					var html = template({ id: dialog.id, description: dialog.text, eventid: eventid, msLeft: event.time, secondsLeft: event.time / 1000, choices: dialog.choices });
+					var html = template({ id: dialog.id, text: dialog.text, eventid: eventid, msLeft: event.time, secondsLeft: event.time / 1000, choices: dialog.choices });
 					var el = $(html);
 					el.dialog();
 
@@ -118,22 +119,22 @@
 				}
 				function bindFormToData() {
 					Game.inn.name = $('#name').val();
-					Game.gameSettings.ticksPerNightShift = $('#ticksPerNightShift').val();
-					Game.gameSettings.eventEntropyPerTick = $('#eventEntropyPerTick').val();
-					Game.gameSettings.timeBetweenTicks = $('#timeBetweenTicks').val();
-					Game.gameSettings.baseEventChance = $('#baseEventChance').val();
-					Game.inn.inventory.drink.ale = $('#ale').val();
-					Game.inn.inventory.drink.wine = $('#wine').val();
-					Game.inn.inventory.drink.mead = $('#mead').val();
-					Game.inn.inventory.food.bread = $('#bread').val();
-					Game.inn.inventory.food.meat = $('#meat').val();
-					Game.inn.inventory.food.salad = $('#salad').val();
-					Game.inn.inventory.staff.barmaid = $('#barmaid').val();
-					Game.inn.inventory.staff.orphan = $('#orphan').val();
-					Game.inn.inventory.staff.hag = $('#hag').val();
-					Game.inn.inventory.entertainment.poet = $('#poet').val();
-					Game.inn.inventory.entertainment.minstrel = $('#minstrel').val();
-					Game.inn.inventory.entertainment.jester = $('#jester').val();
+					Game.gameSettings.ticksPerNightShift = parseInt($('#ticksPerNightShift').val());
+					Game.gameSettings.eventEntropyPerTick = parseFloat($('#eventEntropyPerTick').val());
+					Game.gameSettings.timeBetweenTicks = parseInt($('#timeBetweenTicks').val());
+					Game.gameSettings.baseEventChance = parseFloat($('#baseEventChance').val());
+					Game.inn.inventory.drink.ale = parseInt($('#ale').val());
+					Game.inn.inventory.drink.wine = parseInt($('#wine').val());
+					Game.inn.inventory.drink.mead = parseInt($('#mead').val());
+					Game.inn.inventory.food.bread = parseInt($('#bread').val());
+					Game.inn.inventory.food.meat = parseInt($('#meat').val());
+					Game.inn.inventory.food.salad = parseInt($('#salad').val());
+					Game.inn.inventory.staff.barmaid = parseInt($('#barmaid').val());
+					Game.inn.inventory.staff.orphan = parseInt($('#orphan').val());
+					Game.inn.inventory.staff.hag = parseInt($('#hag').val());
+					Game.inn.inventory.entertainment.poet = parseInt($('#poet').val());
+					Game.inn.inventory.entertainment.minstrel = parseInt($('#minstrel').val());
+					Game.inn.inventory.entertainment.jester = parseInt($('#jester').val());
 				}
 
 				bindDataToForm();
