@@ -22,7 +22,7 @@ var Dialogs = [
 				canChoose: true, //can be a function
 				effect: function (game) {
 					game.inn.inventory.drink.ale--;
-					return 'Simple message; no dialog returned by this choice.  Ale should have reduced by one.';
+					return { message: 'Simple message; no dialog returned by this choice.  Ale should have reduced by one.' };
 				}
 			}
 		]
@@ -37,7 +37,7 @@ var Dialogs = [
 				canChoose: true, //can be a function
 				effect: function (game) {
 					game.inn.inventory.drink.mead = 0;
-					return 'Yay it works!  Mead should be reduced to 0';
+					return { message: 'Yay it works!  Mead should be reduced to 0' };
 				}
 			}
 		]
@@ -47,7 +47,7 @@ var Dialogs = [
 var Events = [
 	{
 		id: 1,
-		time: 15000,
+		time: 5000,
 		canOccur: function (inn) {
 			return true;
 		},

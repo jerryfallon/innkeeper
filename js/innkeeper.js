@@ -39,7 +39,7 @@ var Inn = {
 			mead: 5
 		},
 		food: {
-			bread: 0,
+			bread: 1,
 			meat: 5,
 			salad: 10
 		},
