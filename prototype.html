@@ -17,6 +17,9 @@
 		.ui-front {
 			z-index: 99999 !important;
 		}
+		.faded {
+			opacity:.5;
+		}
 	</style>
 	<link rel="stylesheet" href="css/colorbox.css" />
 	<link rel="stylesheet" href="js\libraries\ui\themes\base\minified\jquery-ui.min.css" />
@@ -96,17 +99,21 @@
 					el.find('.dialog-choice').click(function () {
 						var choiceid = $(this).attr('data-choiceid');
 						var choice = $.grep(dialog.choices, function (c) { return c.id == choiceid; })[0];
-						console.log(dialog)
 						var selectionResult = choice.select();
+						bindDataToForm(); //ensure that any affect on inventory or staff is reflected in the ui.
 						if (selectionResult.dialog)
 							showDialog(eventid, selectionResult.dialog);
 						else
 						{
-							$('<p><\p>').html(selectionResult).dialog(); //show the resulting text of the choice the player made.
+							$('#event-' + eventid).html(selectionResult).addClass('faded');
+							$(".ui-dialog-content").dialog("close"); //close all open dialogs
+							var resultHtml = $('<p/>'); //show the resulting text of the choice the player made.
+							resultHtml.html(selectionResult);
+							resultHtml.dialog({ hide: 'fadeOut' });
 						}
 						return false;
 					});
-					el.dialog(); //show the dialog in the ui.
+					el.dialog({ hide: 'fadeOut'}); //show the dialog in the ui.
 				}
 
 				//todo: make databinding automatic.  Suggestions on libraries for that? -tyler
@@ -159,7 +166,6 @@
 							$('#nightshift').html('<h2>Starting Nightshift</h2>');
 							Inn.startNightShift(function () {
 								$('#nightshift').append('<div class="tick-done">...</div>');
-								//window.scrollTo(0, document.body.scrollHeight);
 							}, function () {
 								var source = $("#event-template").html();
 								var template = Handlebars.compile(source);

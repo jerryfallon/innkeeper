@@ -146,7 +146,7 @@ var Game = {
 		ticksPerNightShift: 10,
 		eventEntropyPerTick: .05,
 		timeBetweenTicks: 1000,
-		baseEventChance: 0.3
+		baseEventChance: 0.9
 	},
 	inn: Inn
 };

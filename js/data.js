@@ -21,7 +21,8 @@ var Dialogs = [
 				text: 'choice 2 for first level dialog.',
 				canChoose: true, //can be a function
 				effect: function (game) {
-					return 'Simple message; no dialog returned by this choice';
+					game.inn.inventory.drink.ale--;
+					return 'Simple message; no dialog returned by this choice.  Ale should have reduced by one.';
 				}
 			}
 		]
@@ -35,7 +36,8 @@ var Dialogs = [
 				text: 'choice 1 for second level dialog.',
 				canChoose: true, //can be a function
 				effect: function (game) {
-					return 'yay, it works!';
+					game.inn.inventory.drink.mead = 0;
+					return 'Yay it works!  Mead should be reduced to 0';
 				}
 			}
 		]
