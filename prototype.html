@@ -77,7 +77,7 @@
 			<h4>{{text}}</h4>
 			<ol>
 				{{#each choices}}
-				<li><a href="#" id="dialog-choice-{{id}}">{{text}}</a></li>
+				<li><a href="#" class="dialog-choice" data-choiceid="{{id}}" data-dialogid="{{../id}}" id="dialog-choice-{{id}}">{{text}}</a></li>
 				{{/each}}
 			</ol>
 		</div>
@@ -93,8 +93,20 @@
 					var template = Handlebars.compile(source);
 					var html = template({ id: dialog.id, text: dialog.text, eventid: eventid, msLeft: event.time, secondsLeft: event.time / 1000, choices: dialog.choices });
 					var el = $(html);
-					el.dialog();
-
+					el.find('.dialog-choice').click(function () {
+						var choiceid = $(this).attr('data-choiceid');
+						var choice = $.grep(dialog.choices, function (c) { return c.id == choiceid; })[0];
+						console.log(dialog)
+						var selectionResult = choice.select();
+						if (selectionResult.dialog)
+							showDialog(eventid, selectionResult.dialog);
+						else
+						{
+							$('<p><\p>').html(selectionResult).dialog(); //show the resulting text of the choice the player made.
+						}
+						return false;
+					});
+					el.dialog(); //show the dialog in the ui.
 				}
 
 				//todo: make databinding automatic.  Suggestions on libraries for that? -tyler
@@ -171,6 +183,8 @@
 								$('#event-' + eventId + '-dialog').click(function () {
 									showDialog(eventId, event.dialog.id);
 								});
+
+
 
 								/*
 								$('#event-' + eventId + ' .option').click(function () {
